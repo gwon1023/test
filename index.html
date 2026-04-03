@@ -19,6 +19,35 @@
             </div>
             <button id="generate-btn">Generate Numbers</button>
         </div>
+
+        <section class="inquiry-section" aria-labelledby="partnership-heading">
+            <div class="inquiry-card">
+                <p class="eyebrow">Partnership</p>
+                <h2 id="partnership-heading">Affiliate Inquiry</h2>
+                <p class="inquiry-description">Send a quick partnership inquiry and we will review your proposal.</p>
+
+                <form class="inquiry-form" action="https://formspree.io/f/xreoyeyg" method="POST">
+                    <input type="hidden" name="_subject" value="New affiliate inquiry">
+                    <label>
+                        Name
+                        <input type="text" name="name" placeholder="Your name" required>
+                    </label>
+                    <label>
+                        Email
+                        <input type="email" name="email" placeholder="you@example.com" required>
+                    </label>
+                    <label>
+                        Company
+                        <input type="text" name="company" placeholder="Company or channel name">
+                    </label>
+                    <label>
+                        Proposal
+                        <textarea name="message" rows="5" placeholder="Tell us about your audience, product, or proposal." required></textarea>
+                    </label>
+                    <button type="submit">Send Inquiry</button>
+                </form>
+            </div>
+        </section>
     </main>
 
     <script src="main.js"></script>
