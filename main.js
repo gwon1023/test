@@ -15,7 +15,6 @@ const emptyState = document.getElementById('empty-state');
 
 let model;
 let webcam;
-let maxPredictions = 0;
 let animationFrameId;
 
 function getPreferredTheme() {
@@ -30,8 +29,11 @@ function getPreferredTheme() {
 
 function applyTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
-    themeToggleBtn.textContent = theme === 'dark' ? 'Light Mode' : 'Dark Mode';
-    themeToggleBtn.setAttribute('aria-pressed', String(theme === 'dark'));
+
+    if (themeToggleBtn) {
+        themeToggleBtn.textContent = theme === 'dark' ? 'Light Mode' : 'Dark Mode';
+        themeToggleBtn.setAttribute('aria-pressed', String(theme === 'dark'));
+    }
 }
 
 function setTheme(theme) {
@@ -44,30 +46,44 @@ async function loadModel() {
         return model;
     }
 
+    if (!modelStatus) {
+        return null;
+    }
+
     modelStatus.textContent = '모델 로딩 중...';
 
     const modelURL = MODEL_URL + 'model.json';
     const metadataURL = MODEL_URL + 'metadata.json';
 
     model = await tmImage.load(modelURL, metadataURL);
-    maxPredictions = model.getTotalClasses();
     modelStatus.textContent = '모델 준비 완료';
     modelStatus.classList.add('ready');
-    topResult.textContent = '이미지를 업로드하거나 웹캠을 시작해 주세요.';
+
+    if (topResult) {
+        topResult.textContent = '이미지를 업로드하거나 웹캠을 시작해 주세요.';
+    }
+
     return model;
 }
 
 function setPreviewState(hasImage) {
+    if (!previewStage || !emptyState) {
+        return;
+    }
+
     previewStage.classList.toggle('empty', !hasImage);
     emptyState.hidden = hasImage;
 }
 
 function renderPredictions(predictions) {
+    if (!labelContainer || !topResult) {
+        return;
+    }
+
     const sortedPredictions = [...predictions].sort((a, b) => b.probability - a.probability);
     const bestPrediction = sortedPredictions[0];
 
     topResult.textContent = `${bestPrediction.className}일 확률이 ${(bestPrediction.probability * 100).toFixed(1)}% 입니다.`;
-
     labelContainer.innerHTML = '';
 
     sortedPredictions.forEach((prediction) => {
@@ -94,6 +110,11 @@ function renderPredictions(predictions) {
 
 async function predictFromElement(element) {
     const loadedModel = await loadModel();
+
+    if (!loadedModel) {
+        return;
+    }
+
     const predictions = await loadedModel.predict(element);
     renderPredictions(predictions);
 }
@@ -109,8 +130,13 @@ function stopWebcam() {
         webcam = null;
     }
 
-    webcamContainer.innerHTML = '';
-    stopCameraBtn.disabled = true;
+    if (webcamContainer) {
+        webcamContainer.innerHTML = '';
+    }
+
+    if (stopCameraBtn) {
+        stopCameraBtn.disabled = true;
+    }
 }
 
 async function loop() {
@@ -134,14 +160,28 @@ async function startWebcam() {
 
         webcamContainer.innerHTML = '';
         webcamContainer.appendChild(webcam.canvas);
-        uploadedPreview.removeAttribute('src');
+
+        if (uploadedPreview) {
+            uploadedPreview.removeAttribute('src');
+        }
+
         setPreviewState(true);
         stopCameraBtn.disabled = false;
-        topResult.textContent = '웹캠으로 분석 중입니다.';
+
+        if (topResult) {
+            topResult.textContent = '웹캠으로 분석 중입니다.';
+        }
+
         animationFrameId = window.requestAnimationFrame(loop);
     } catch (error) {
-        modelStatus.textContent = '웹캠 접근 실패';
-        topResult.textContent = '브라우저 권한 또는 HTTPS 환경을 확인해 주세요.';
+        if (modelStatus) {
+            modelStatus.textContent = '웹캠 접근 실패';
+        }
+
+        if (topResult) {
+            topResult.textContent = '브라우저 권한 또는 HTTPS 환경을 확인해 주세요.';
+        }
+
         console.error(error);
     }
 }
@@ -149,7 +189,7 @@ async function startWebcam() {
 async function handleImageUpload(event) {
     const [file] = event.target.files;
 
-    if (!file) {
+    if (!file || !uploadedPreview) {
         return;
     }
 
@@ -165,24 +205,29 @@ async function handleImageUpload(event) {
     uploadedPreview.src = imageURL;
 }
 
-themeToggleBtn.addEventListener('click', () => {
-    const nextTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-    setTheme(nextTheme);
-});
-
-imageUploadInput.addEventListener('change', handleImageUpload);
-startCameraBtn.addEventListener('click', startWebcam);
-stopCameraBtn.addEventListener('click', () => {
-    stopWebcam();
-    setPreviewState(false);
-    topResult.textContent = '웹캠이 중지되었습니다. 이미지를 업로드하거나 다시 시작할 수 있습니다.';
-});
-
 applyTheme(getPreferredTheme());
-setPreviewState(false);
-stopCameraBtn.disabled = true;
-loadModel().catch((error) => {
-    modelStatus.textContent = '모델 로딩 실패';
-    topResult.textContent = '모델 파일을 불러오지 못했습니다. 네트워크 연결을 확인해 주세요.';
-    console.error(error);
-});
+
+if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', () => {
+        const nextTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        setTheme(nextTheme);
+    });
+}
+
+if (imageUploadInput && startCameraBtn && stopCameraBtn && modelStatus && topResult && labelContainer && webcamContainer && uploadedPreview) {
+    imageUploadInput.addEventListener('change', handleImageUpload);
+    startCameraBtn.addEventListener('click', startWebcam);
+    stopCameraBtn.addEventListener('click', () => {
+        stopWebcam();
+        setPreviewState(false);
+        topResult.textContent = '웹캠이 중지되었습니다. 이미지를 업로드하거나 다시 시작할 수 있습니다.';
+    });
+
+    setPreviewState(false);
+    stopCameraBtn.disabled = true;
+    loadModel().catch((error) => {
+        modelStatus.textContent = '모델 로딩 실패';
+        topResult.textContent = '모델 파일을 불러오지 못했습니다. 네트워크 연결을 확인해 주세요.';
+        console.error(error);
+    });
+}
