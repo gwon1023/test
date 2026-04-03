@@ -1,30 +1,76 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lotto Number Generator</title>
+    <title>PetVision AI Classifier</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>
-        <h1>Lotto Number Generator</h1>
+    <header class="hero">
+        <div class="hero-copy">
+            <p class="eyebrow">Teachable Machine Model</p>
+            <h1>개와 고양이를 구분하는 AI 사이트</h1>
+            <p class="hero-description">이미지를 업로드하거나 웹캠을 켜서 동물을 판별하세요. Teachable Machine 모델이 각 클래스의 확률을 바로 계산합니다.</p>
+        </div>
         <button id="theme-toggle" type="button" aria-label="Toggle color theme">Dark Mode</button>
     </header>
 
     <main>
-        <div class="lotto-container">
-            <div id="lotto-numbers" class="number-grid">
-                <!-- Numbers will be generated here -->
+        <section class="detector-shell" aria-labelledby="detector-heading">
+            <div class="detector-panel">
+                <p class="eyebrow">Animal Detector</p>
+                <h2 id="detector-heading">이미지 분류</h2>
+                <p class="panel-description">업로드 이미지 판별을 기본으로 제공하고, 원하면 웹캠으로 실시간 분류도 할 수 있습니다.</p>
+
+                <div class="status-row">
+                    <span id="model-status" class="status-pill">모델 로딩 중...</span>
+                    <span class="status-note">모델: xvIvKqIrz</span>
+                </div>
+
+                <div class="control-grid">
+                    <label class="upload-card" for="image-upload">
+                        <span class="upload-title">이미지 업로드</span>
+                        <span class="upload-caption">JPG, PNG 같은 동물 이미지를 선택하세요.</span>
+                        <input id="image-upload" type="file" accept="image/*">
+                    </label>
+
+                    <div class="action-card">
+                        <button id="start-camera-btn" type="button">웹캠 시작</button>
+                        <button id="stop-camera-btn" type="button" class="secondary-button">웹캠 중지</button>
+                        <p class="camera-note">웹캠 사용은 HTTPS 환경 또는 localhost에서 동작합니다.</p>
+                    </div>
+                </div>
             </div>
-            <button id="generate-btn">Generate Numbers</button>
-        </div>
+
+            <div class="preview-panel">
+                <div class="preview-card">
+                    <p class="eyebrow">Preview</p>
+                    <h2>입력 화면</h2>
+                    <div id="preview-stage" class="preview-stage empty">
+                        <img id="uploaded-preview" alt="업로드한 동물 이미지 미리보기">
+                        <div id="empty-state" class="empty-state">
+                            <strong>아직 분석할 이미지가 없습니다.</strong>
+                            <span>이미지를 업로드하거나 웹캠을 시작해 주세요.</span>
+                        </div>
+                    </div>
+                    <div id="webcam-container" class="webcam-container"></div>
+                </div>
+
+                <div class="results-card">
+                    <p class="eyebrow">Result</p>
+                    <h2>예측 결과</h2>
+                    <div id="top-result" class="top-result">모델을 불러오는 중입니다.</div>
+                    <div id="label-container" class="prediction-list"></div>
+                </div>
+            </div>
+        </section>
 
         <section class="inquiry-section" aria-labelledby="partnership-heading">
-            <div class="inquiry-card">
+            <div class="content-card inquiry-card">
                 <p class="eyebrow">Partnership</p>
                 <h2 id="partnership-heading">Affiliate Inquiry</h2>
-                <p class="inquiry-description">Send a quick partnership inquiry and we will review your proposal.</p>
+                <p class="panel-description">모델 협업, 광고 제휴, 데이터 제안이 있으면 아래 폼으로 보내 주세요.</p>
 
                 <form class="inquiry-form" action="https://formspree.io/f/xreoyeyg" method="POST">
                     <input type="hidden" name="_subject" value="New affiliate inquiry">
@@ -50,7 +96,7 @@
         </section>
 
         <section class="comments-section" aria-labelledby="comments-heading">
-            <div class="comments-card">
+            <div class="content-card comments-card">
                 <p class="eyebrow">Community</p>
                 <h2 id="comments-heading">Comments</h2>
                 <div id="disqus_thread"></div>
@@ -59,10 +105,12 @@
         </section>
     </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
     <script>
         var disqus_config = function () {
             this.page.url = window.location.href;
-            this.page.identifier = 'lotto-generator-home';
+            this.page.identifier = 'petvision-ai-home';
         };
 
         (function() {
