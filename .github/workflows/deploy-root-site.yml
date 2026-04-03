@@ -1,0 +1,38 @@
+name: Deploy Root Site
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ secrets.PAGES_REPO_TOKEN != '' }}
+    steps:
+      - name: Checkout source repository
+        uses: actions/checkout@v4
+
+      - name: Publish to root Pages repository
+        env:
+          TARGET_REPO: gwon1023/gwon1023.github.io
+          GH_TOKEN: ${{ secrets.PAGES_REPO_TOKEN }}
+        run: |
+          set -eu
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          temp_dir="$(mktemp -d)"
+          git clone "https://x-access-token:${GH_TOKEN}@github.com/${TARGET_REPO}.git" "$temp_dir"
+          find "$temp_dir" -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          cp -R . "$temp_dir/"
+          rm -rf "$temp_dir/.git" "$temp_dir/.github"
+          cd "$temp_dir"
+          git init
+          git checkout -b main
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Deploy root site from gwon1023/test" || exit 0
+          git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${TARGET_REPO}.git"
+          git push origin main --force
