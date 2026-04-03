@@ -48,8 +48,31 @@
                 </form>
             </div>
         </section>
+
+        <section class="comments-section" aria-labelledby="comments-heading">
+            <div class="comments-card">
+                <p class="eyebrow">Community</p>
+                <h2 id="comments-heading">Comments</h2>
+                <div id="disqus_thread"></div>
+                <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+            </div>
+        </section>
     </main>
 
+    <script>
+        var disqus_config = function () {
+            this.page.url = window.location.href;
+            this.page.identifier = 'lotto-generator-home';
+        };
+
+        (function() {
+            var d = document;
+            var s = d.createElement('script');
+            s.src = 'https://test2-imgscv22ai.disqus.com/embed.js';
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        })();
+    </script>
     <script src="main.js"></script>
 </body>
 </html>
