@@ -6,11 +6,27 @@
     --background-color: #1a1a1a;
     --text-color: #ffffff;
     --shadow-color: rgba(255, 222, 125, 0.5);
+    --surface-color: rgba(255, 255, 255, 0.04);
+    --button-text-color: #333333;
+    --number-text-color: #333333;
+}
+
+[data-theme='light'] {
+    --primary-color: #ffb300;
+    --secondary-color: #ffd54f;
+    --background-color: #f7f3e8;
+    --text-color: #1f1a12;
+    --shadow-color: rgba(255, 179, 0, 0.28);
+    --surface-color: rgba(255, 255, 255, 0.82);
+    --button-text-color: #2f2510;
+    --number-text-color: #2f2510;
 }
 
 body {
     font-family: 'Poppins', sans-serif;
-    background-color: var(--background-color);
+    background:
+        radial-gradient(circle at top, rgba(255, 222, 125, 0.18), transparent 30%),
+        linear-gradient(180deg, color-mix(in srgb, var(--background-color) 88%, #000000 12%), var(--background-color));
     color: var(--text-color);
     margin: 0;
     display: flex;
@@ -18,12 +34,19 @@ body {
     align-items: center;
     min-height: 100vh;
     text-align: center;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 header h1 {
     color: var(--primary-color);
     font-size: 3rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
     text-shadow: 0 0 10px var(--shadow-color);
 }
 
@@ -32,6 +55,11 @@ header h1 {
     flex-direction: column;
     align-items: center;
     gap: 2rem;
+    padding: 2rem;
+    border-radius: 32px;
+    background-color: var(--surface-color);
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.18);
+    backdrop-filter: blur(10px);
 }
 
 .number-grid {
@@ -49,27 +77,56 @@ header h1 {
     justify-content: center;
     align-items: center;
     font-size: 2.5rem;
-    color: #333;
+    color: var(--number-text-color);
     box-shadow: 0 10px 20px rgba(0,0,0,0.3), inset 0 0 10px rgba(255,255,255,0.2);
     animation: popIn 0.5s ease-out forwards;
 }
 
-#generate-btn {
+#generate-btn,
+#theme-toggle {
     padding: 1rem 2rem;
     border: none;
     border-radius: 50px;
     background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
-    color: #333;
-    font-size: 1.5rem;
+    color: var(--button-text-color);
+    font-size: 1.1rem;
     font-weight: bold;
     cursor: pointer;
     box-shadow: 0 0 20px var(--shadow-color);
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: transform 0.2s, box-shadow 0.2s, background 0.3s ease, color 0.3s ease;
 }
 
-#generate-btn:hover {
+#generate-btn {
+    font-size: 1.5rem;
+}
+
+#generate-btn:hover,
+#theme-toggle:hover {
     transform: scale(1.05);
     box-shadow: 0 0 30px var(--shadow-color);
+}
+
+#theme-toggle {
+    margin-bottom: 2rem;
+}
+
+@media (max-width: 720px) {
+    body {
+        padding: 1.5rem;
+    }
+
+    header h1 {
+        font-size: 2.25rem;
+    }
+
+    .lotto-container {
+        width: min(100%, 480px);
+        padding: 1.5rem;
+    }
+
+    .number-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
 }
 
 @keyframes popIn {
